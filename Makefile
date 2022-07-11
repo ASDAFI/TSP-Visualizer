@@ -26,7 +26,7 @@ dependencies:
 
 
 build:
-	g++ main.cpp -o $(BINARY_NAME) -lgraph
+	g++ main.cpp -o $(BINARY_NAME) -lgraph -std=c++11
 
 clean:
 	@echo "Cleaning..."
