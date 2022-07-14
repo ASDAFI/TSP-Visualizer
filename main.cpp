@@ -84,7 +84,7 @@ class Edge {
 
 };
 
-//
+
 int Edge::thickness = Node::thickness;
 
 Edge::Edge(int inputId, Node* inputNode1, Node* inputNode2, double inputWeight)
@@ -111,6 +111,51 @@ Node* Edge::getFirstNode()
 Node* Edge::getSecondNode()
 {
 	return secondNode;
+}
+
+void Edge::visualize() {
+
+
+
+    int alpha1 = firstNode->getPosition().x;
+    int beta1 = firstNode->getPosition().y;
+    int alpha2 = secondNode->getPosition().x;
+    int beta2 = secondNode->getPosition().y;
+    int r = Node::radius;
+
+    int x1, y1, x2, y2;
+
+    if(alpha1 == alpha2){
+        if(beta1 > beta2){
+            swap(beta1, beta2);
+        }
+        x1 = alpha1;
+        x2 = alpha2;
+
+        y1 = beta1 + r;
+        y2 = beta2 - r;
+    }
+    else {
+        float m = (beta2 - beta1) / (alpha2 - alpha1);
+        float b = beta1 - m * alpha1;
+
+        if (alpha2 < alpha1) {
+            swap(alpha1, alpha2);
+            swap(beta1, beta2);
+        }
+        float delta1 = pow(-2 * alpha1 + 2 * b * m - 2 * beta1 * m, 2) -
+                       4 * (m + 1) * (pow(alpha1, 2) + pow(b, 2) + pow(beta1, 2) - pow(r, 2) - 2 * beta1 * b);
+        x1 = (-(-2 * alpha1 + 2 * b * m - 2 * beta1 * m) + sqrt(delta1)) / (2 * (pow(m, 2) + 1));
+        y1 = m * x1 + b;
+
+        float delta2 = pow(-2 * alpha2 + 2 * b * m - 2 * beta2 * m, 2) -
+                       4 * (m + 1) * (pow(alpha2, 2) + pow(b, 2) + pow(beta2, 2) - pow(r, 2) - 2 * beta2 * b);
+        x2 = (-(-2 * alpha2 + 2 * b * m - 2 * beta2 * m) - sqrt(delta2)) / (2 * (pow(m, 2) + 1));
+        y2 = m * x2 + b;
+    }
+    setlinestyle(SOLID_LINE, 0, Edge::thickness);
+    //line(alpha1, beta1, alpha2, beta2);
+    line(x1, y1, x2, y2);
 }
 ////////////////////////////////////////////////// Class Edge - End
 
@@ -159,9 +204,21 @@ void Graph::addNode(Node* inputNode)
 int main() {
     cout << "Hello world!" << endl;
     initGraph();
+
     Node node1(1);
+    Node node2(2);
+
     node1.setPosition(Position{100, 100});
+    node2.setPosition(Position{100, 200});
+
     node1.visualize();
+    node2.visualize();
+
+    Edge edge1(1, &node1, &node2, 1.0);
+
+    edge1.visualize();
+
     getch();
+
     return 0;
 }
