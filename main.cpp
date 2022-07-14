@@ -31,8 +31,22 @@ private:
 
 int Node::radius = 9;
 int Node::thickness = Node::radius / 10 + 1;
-
-
+int Node::(int inputId);
+{
+	id=inputId;
+}
+void Node::setPosition(Position inputPosition);
+{
+	position=inputPosition
+}
+int Node::getId()
+{
+	return id;
+}
+Position Node::getPosition()
+{
+	return position
+}
 ////////////////////////////////////////////////// Class Node - End
 
 
