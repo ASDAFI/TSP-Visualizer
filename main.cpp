@@ -1,3 +1,4 @@
+
 # include "iostream"
 # include "vector"
 # include "graphics.h"
@@ -57,7 +58,31 @@ class Edge {
 //
 int Edge::thickness = Node::thickness;
 
+Edge(int inputId, Node* inputNode1, Node* inputNode2, double inputWeight)
+{
+	id = inputId;
+	firstNode = inputNode1;
+	secondNode = inputNode2;
+	Weight = inputWeight;
+}
+        
+void setWeight(double inputWeight) 
+{
+    weight = inputWeight;  
+}
 
+double getWeight() 
+{
+	return weight;  
+}
+Node* getFirstNode(int firstNode)
+{
+	return firstNode;
+}
+Node* getSecondNode(int secondNode)
+{
+	return secondNode;
+}
 ////////////////////////////////////////////////// Class Edge - End
 
 
