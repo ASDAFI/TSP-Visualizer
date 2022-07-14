@@ -78,6 +78,27 @@ public:
 
 };
 
+Graph::Graph()
+{
+    edgesCount = 0;
+    nodesCount = 0;
+}
+
+void Graph::addEdge(Edge* inputEdge)
+{
+    edges.push_back(inputEdge);
+    edgesCount ++;
+    
+}
+
+void Graph::addNode(Node* inputNode)
+{
+    nodes.push_back(inputNode);
+    nodesCount ++;
+ 
+}
+
+
 
 ////////////////////////////////////////////////// Class Graph - End
 
