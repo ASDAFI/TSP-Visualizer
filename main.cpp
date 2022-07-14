@@ -36,15 +36,15 @@ int Node::(int inputId);
 }
 void Node::setPosition(Position inputPosition);
 {
-	Position=inputPosition
+	position=inputPosition
 }
 int Node::getId()
 {
 	return id;
 }
-position Node::getPosition()
+Position Node::getPosition()
 {
-	return Position
+	return position
 }
 ////////////////////////////////////////////////// Class Node - End
 
