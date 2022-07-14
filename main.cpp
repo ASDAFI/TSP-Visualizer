@@ -6,6 +6,13 @@
 
 using namespace std;
 
+void initGraph(){
+    int gd = DETECT, gm;
+
+    initgraph(&gd, &gm, NULL);
+}
+
+
 struct Position {
     int x;
     int y;
@@ -48,6 +55,13 @@ Position Node::getPosition()
 {
 	return position;
 }
+
+void Node::visualize() {
+    circle(position.x, position.y, Node::radius);
+
+}
+
+
 ////////////////////////////////////////////////// Class Node - End
 
 
@@ -144,6 +158,10 @@ void Graph::addNode(Node* inputNode)
 
 int main() {
     cout << "Hello world!" << endl;
+    initGraph();
+    Node node1(1);
+    node1.setPosition(Position{100, 100});
+    node1.visualize();
     getch();
     return 0;
 }
