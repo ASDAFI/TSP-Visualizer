@@ -15,7 +15,7 @@ struct Position {
 
 class Node {
 
-private:
+    private:
         int id;
         Position position;
     public:
@@ -31,13 +31,14 @@ private:
 
 int Node::radius = 9;
 int Node::thickness = Node::radius / 10 + 1;
-int Node::(int inputId);
+
+Node::Node(int inputId)
 {
 	id=inputId;
 }
-void Node::setPosition(Position inputPosition);
+void Node::setPosition(Position inputPosition)
 {
-	position=inputPosition
+	position=inputPosition;
 }
 int Node::getId()
 {
@@ -45,7 +46,7 @@ int Node::getId()
 }
 Position Node::getPosition()
 {
-	return position
+	return position;
 }
 ////////////////////////////////////////////////// Class Node - End
 
@@ -72,28 +73,28 @@ class Edge {
 //
 int Edge::thickness = Node::thickness;
 
-Edge(int inputId, Node* inputNode1, Node* inputNode2, double inputWeight)
+Edge::Edge(int inputId, Node* inputNode1, Node* inputNode2, double inputWeight)
 {
 	id = inputId;
 	firstNode = inputNode1;
 	secondNode = inputNode2;
-	Weight = inputWeight;
+	weight = inputWeight;
 }
         
-void setWeight(double inputWeight) 
+void Edge::setWeight(double inputWeight)
 {
-    weight = inputWeight;  
+    weight = inputWeight;
 }
 
-double getWeight() 
+double Edge::getWeight()
 {
-	return weight;  
+	return weight;
 }
-Node* getFirstNode(int firstNode)
+Node* Edge::getFirstNode()
 {
 	return firstNode;
 }
-Node* getSecondNode(int secondNode)
+Node* Edge::getSecondNode()
 {
 	return secondNode;
 }
