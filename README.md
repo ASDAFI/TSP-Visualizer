@@ -1,6 +1,6 @@
 # TSP
 
-Advanced Programming Course Project - Spring 2022
+Advanced Programming Course Project - Shahed University - Spring 2022
 
 Travelling salesman problem optimization and visualization tools.
 
