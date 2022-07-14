@@ -1,3 +1,4 @@
+
 # include "iostream"
 # include "vector"
 # include "graphics.h"
@@ -51,11 +52,12 @@ class Edge {
         Node* getFirstNode();
         Node* getSecondNode();
         void visualize();
-        
-void setWeight(double inputWeight) 
-{
-    Weight = inputWeight;  
-}
+
+};
+
+//
+int Edge::thickness = Node::thickness;
+
 Edge(int inputId, Node* inputNode1, Node* inputNode2, double inputWeight)
 {
 	id = inputId;
@@ -63,27 +65,24 @@ Edge(int inputId, Node* inputNode1, Node* inputNode2, double inputWeight)
 	secondNode = inputNode2;
 	Weight = inputWeight;
 }
+        
+void setWeight(double inputWeight) 
+{
+    weight = inputWeight;  
+}
 
 double getWeight() 
 {
-	return Weight;  
+	return weight;  
 }
-void getFirstNode(int firstNode)
+Node* getFirstNode(int firstNode)
 {
-	cout<<firstNode;
+	return firstNode;
 }
-void getSecondNode(int secondNode)
+Node* getSecondNode(int secondNode)
 {
-	cout<<secondNode;
+	return secondNode;
 }
-
-
-};
-
-//
-int Edge::thickness = Node::thickness;
-
-
 ////////////////////////////////////////////////// Class Edge - End
 
 
@@ -104,13 +103,31 @@ public:
 
 };
 
+Graph::Graph()
+{
+    edgesCount = 0;
+    nodesCount = 0;
+}
+
+void Graph::addEdge(Edge* inputEdge)
+{
+    edges.push_back(inputEdge);
+    edgesCount ++;
+    
+}
+
+void Graph::addNode(Node* inputNode)
+{
+    nodes.push_back(inputNode);
+    nodesCount ++;
+ 
+}
+
+
 
 ////////////////////////////////////////////////// Class Graph - End
 
 int main() {
-	Edge obj;
-	cin>>int i;
-	obj.setWeight(i);
     cout << "Hello world!" << endl;
     getch();
     return 0;
