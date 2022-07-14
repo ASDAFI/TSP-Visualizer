@@ -157,6 +157,7 @@ void Edge::visualize() {
     //line(alpha1, beta1, alpha2, beta2);
     line(x1, y1, x2, y2);
 }
+
 ////////////////////////////////////////////////// Class Edge - End
 
 
@@ -173,6 +174,8 @@ public:
     void addNode(Node* inputNode);
     vector<Edge*> getEdges();
     vector<Node*> getNodes();
+    void visualizeNodes();
+    void visualizeEdges();
     void visualize();
 
 };
@@ -198,6 +201,22 @@ void Graph::addNode(Node* inputNode)
 }
 
 
+void Graph::visualizeNodes() {
+    for(int i = 0; i < nodesCount; i++) {
+        nodes[i]->visualize();
+    }
+}
+
+void Graph::visualizeEdges() {
+    for(int i = 0; i < edgesCount; i++) {
+        edges[i]->visualize();
+    }
+}
+
+void Graph::visualize() {
+    visualizeNodes();
+    visualizeEdges();
+}
 
 ////////////////////////////////////////////////// Class Graph - End
 
@@ -207,18 +226,34 @@ int main() {
 
     Node node1(1);
     Node node2(2);
+    Node node3(3);
 
-    node1.setPosition(Position{100, 100});
-    node2.setPosition(Position{100, 200});
+    node1.setPosition(Position{300, 300});
+    node2.setPosition(Position{200, 400});
+    node3.setPosition(Position{400, 400});
 
-    node1.visualize();
-    node2.visualize();
 
-    Edge edge1(1, &node1, &node2, 1.0);
+    Graph g;
+    g.addNode(&node1);
+    g.addNode(&node2);
+    g.addNode(&node3);
 
-    edge1.visualize();
+    //Edge edge1(1, &node1, &node2, 1);
+    Edge edge2(2, &node2, &node3, 1);
+    Edge edge3(3, &node3, &node1, 1);
 
-    getch();
+    //g.addEdge(&edge1);
+    g.addEdge(&edge2);
+    g.addEdge(&edge3);
+
+
+
+
+
+    g.visualize();
+
+
+    delay(10000);
 
     return 0;
 }
