@@ -51,6 +51,32 @@ class Edge {
         Node* getFirstNode();
         Node* getSecondNode();
         void visualize();
+        
+void setWeight(double inputWeight) 
+{
+    Weight = inputWeight;  
+}
+Edge(int inputId, Node* inputNode1, Node* inputNode2, double inputWeight)
+{
+	id = inputId;
+	firstNode = inputNode1;
+	secondNode = inputNode2;
+	Weight = inputWeight;
+}
+
+double getWeight() 
+{
+	return Weight;  
+}
+void getFirstNode(int firstNode)
+{
+	cout<<firstNode;
+}
+void getSecondNode(int secondNode)
+{
+	cout<<secondNode;
+}
+
 
 };
 
@@ -82,6 +108,9 @@ public:
 ////////////////////////////////////////////////// Class Graph - End
 
 int main() {
+	Edge obj;
+	cin>>int i;
+	obj.setWeight(i);
     cout << "Hello world!" << endl;
     getch();
     return 0;
