@@ -220,6 +220,59 @@ void Graph::visualize() {
 
 ////////////////////////////////////////////////// Class Graph - End
 
+///////////////////////Rescaling///////////////////
+#include "math.h"
+
+int X = 600, Y = 600;
+
+void Rescaling(double Nodesposition[nodesCount][2])
+{
+    double minX = Nodesposition[0][0], minY = Nodesposition[0][1];
+
+    for (int i = 1; i < nodescount; i++)
+    {
+        minX = Nodesposition[i][0] < minX ? Nodesposition[i][0] : minX;
+        minY = Nodesposition[i][1] < minY ? Nodesposition[i][1] : minY;
+    }
+
+    if (minX < 0)
+    {
+        for (int i = 0; i < nodescount; i++)
+        {
+            nodesposition[i][0] += fabs(minX);
+        }
+    }
+
+    if (minY < 0)
+    {
+        for (int i = 0; i < nodescount; i++)
+        {
+            nodesposition[i][1] += fabs(minY);
+        }
+    }
+    
+    double maxX = Nodesposition[0][0], maxY = Nodesposition[0][1];
+    
+    for (int i = 1; i < nodescount; i++)
+    {
+        maxX = Nodesposition[i][0] > maxX ? Nodesposition[i][0] : maxX;
+        maxY = Nodesposition[i][1] > maxY ? Nodesposition[i][1] : maxY;
+    }
+
+    double tx, ty;
+
+    tx = X/(maxX - minX);
+    ty = Y/(maxY - minY);
+
+    for (int i = 0; i < nodescount; i++)
+    {
+        Nodesposition[i][0] *= tx;
+        Nodesposition[i][1] *= ty;
+    }
+}
+//////////////////////////end/////////////////////////////
+
+
 int main() {
     cout << "Hello world!" << endl;
     initGraph();
