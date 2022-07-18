@@ -392,6 +392,22 @@ class Algorithm {
         void doAntColony(int epochs, bool visualize = false);
 };
 
+void Algorithm::doRandom(int n)
+{
+    n++;
+    vector<int> v(n);
+    for (int i = 0; i < n; i++)
+        v[i] = i;
+
+    int randomIndex = 0;
+
+    for (int i = 0; i < n; i++)
+    {
+        randomIndex = rand() % n;
+        swap(v[i], v[randomIndex]);
+    }
+}
+
 ////////////////////////////////////////////////// Class Algorithm - End
 
 
