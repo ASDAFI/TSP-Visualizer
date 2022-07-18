@@ -3,6 +3,7 @@
 # include "vector"
 # include "graphics.h"
 # include "stdlib.h"
+# include "string"
 
 using namespace std;
 
@@ -150,6 +151,7 @@ class Node {
         int id;
         Position position;
     public:
+
         static int radius;
         static int thickness;
         Node(int inputId);
@@ -273,6 +275,7 @@ public:
     void visualizeEdges();
     void visualize();
     Position* getPositions();
+    vector<vector<int>> getAdjacencyMatrix();
     void rescale();
 
 };
@@ -333,6 +336,62 @@ void Graph::rescale() {
 }
 
 ////////////////////////////////////////////////// Class Graph - End
+
+////////////////////////////////////////////////// Class Problem - Start
+
+class Path {
+    private:
+        int pointsCount;
+        Position* points;
+        int* path;
+    public:
+        Path(int inputPointsCount, Position* inputPoints);
+        void setPath(int* inputPath);
+        int getPointsCount();
+        Position* getPoints();
+        int* getPath();
+        int getCost();
+        void visualize();
+        bool isValid();
+};
+
+class Problem {
+    private:
+        int citiesCount;
+        Position* points;
+        Graph* graph;
+
+
+    public:
+        Problem(int inputCitiesCount, Position* inputPoints);
+        Problem(string filePath);
+        int getCitiesCount();
+        void setGraph();
+        Graph* getGraph();
+        bool pathIsValid();
+
+};
+
+
+class Algorithm {
+    private:
+        Problem* problem;
+        Path* path;
+        int cost;
+        void localSearch();
+        void antColony();
+    public:
+        Algorithm(Problem* inputProblem);
+        void doExhaustiveSearch();
+        void doGreedy();
+        void doRandom();
+        void doLocalSearch(int epochs, bool visualize = false);
+        void doAntColony(int epochs, bool visualize = false);
+};
+
+
+////////////////////////////////////////////////// Class Problem - End
+
 
 int main() {
     cout << "Hello world!" << endl;
