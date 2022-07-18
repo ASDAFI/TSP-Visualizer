@@ -6,6 +6,10 @@
 
 using namespace std;
 
+
+int maxWidth = 400, maxHeight = 400;
+
+
 void initGraph(){
     int gd = DETECT, gm;
 
@@ -98,6 +102,44 @@ Position* getCoordinates(int x1, int y1, int x2, int y2, int r)
     return coordinates;
 
 
+}
+
+void rescalePoints(Position* Nodesposition, int nodescount) {
+
+    double minX = Nodesposition[0].x, minY = Nodesposition[0].y;
+
+    for (int i = 1; i < nodescount; i++) {
+        minX = Nodesposition[i].x < minX ? Nodesposition[i].x : minX;
+        minY = Nodesposition[i].y < minY ? Nodesposition[i].y : minY;
+    }
+
+    if (minX < 0) {
+        for (int i = 0; i < nodescount; i++) {
+            Nodesposition[i].x += fabs(minX);
+        }
+    }
+
+    if (minY < 0) {
+        for (int i = 0; i < nodescount; i++) {
+            Nodesposition[i].x += fabs(minY);
+        }
+    }
+
+    double maxX = Nodesposition[0].x, maxY = Nodesposition[0].y;
+
+    for (int i = 1; i < nodescount; i++) {
+        maxX = Nodesposition[i].x > maxX ? Nodesposition[i].x : maxX;
+        maxY = Nodesposition[i].y > maxY ? Nodesposition[i].y : maxY;
+    }
+
+    double tx, ty;
+
+    tx = maxWidth / maxX;
+    ty = maxHeight / maxY;
+    for (int i = 0; i < nodescount; i++) {
+        Nodesposition[i].x *= tx;
+        Nodesposition[i].y *= ty;
+    }
 }
 
 ////////////////////////////////////////////////// Class Node - Start
@@ -230,6 +272,8 @@ public:
     void visualizeNodes();
     void visualizeEdges();
     void visualize();
+    Position* getPositions();
+    void rescale();
 
 };
 
@@ -271,6 +315,23 @@ void Graph::visualize() {
     visualizeEdges();
 }
 
+Position* Graph::getPositions() {
+    Position* positions = new Position[nodesCount];
+    for(int i = 0; i < nodesCount; i++) {
+        positions[i] = nodes[i]->getPosition();
+    }
+    return positions;
+}
+
+void Graph::rescale() {
+    Position* positions = getPositions();
+    rescalePoints(positions, nodesCount);
+    for(int i = 0; i < nodesCount; i++) {
+        nodes[i]->setPosition(positions[i]);
+        cout << positions[i].x << " " << positions[i].y << endl;
+    }
+}
+
 ////////////////////////////////////////////////// Class Graph - End
 
 int main() {
@@ -281,9 +342,9 @@ int main() {
     Node node2(2);
     Node node3(3);
 
-    node1.setPosition(Position{300, 300});
-    node2.setPosition(Position{200, 400});
-    node3.setPosition(Position{400, 400});
+    node1.setPosition(Position{3, 3});
+    node2.setPosition(Position{2, 4});
+    node3.setPosition(Position{4, 4});
 
 
     Graph g;
@@ -298,6 +359,8 @@ int main() {
     g.addEdge(&edge1);
     g.addEdge(&edge2);
     g.addEdge(&edge3);
+
+    g.rescale();
 
 
 
