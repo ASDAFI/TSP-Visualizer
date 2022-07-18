@@ -369,7 +369,6 @@ class Problem {
         int getCitiesCount();
         void setGraph();
         Graph* getGraph();
-        bool pathIsValid();
 
 };
 
