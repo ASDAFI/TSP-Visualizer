@@ -4,6 +4,7 @@
 # include "graphics.h"
 # include "stdlib.h"
 # include "string"
+#include "math.h"
 
 using namespace std;
 
@@ -135,8 +136,8 @@ void rescalePoints(Position* Nodesposition, int nodescount) {
 
     double tx, ty;
 
-    tx = maxWidth / maxX;
-    ty = maxHeight / maxY;
+    tx = maxWidth / (maxX - minX);
+    ty = maxHeight / (maxY - minY);
     for (int i = 0; i < nodescount; i++) {
         Nodesposition[i].x *= tx;
         Nodesposition[i].y *= ty;
@@ -353,6 +354,44 @@ class Path {
         void visualize();
         bool isValid();
 };
+
+int Path::getCost()
+{
+    int deltax, deltay, cost, Cost = 0;
+
+    for (int i = 1; i < pointsCount; i++)
+    {
+        deltax = inputPoints[i].x - inputPoints[i-1].x;
+        deltay = inputPoints[i].y - inputPoints[i-1].y;
+        
+        cost = pow(deltax, 2) + pow(deltay, 2);
+        Cost += sqrt(cost);
+    }
+
+    deltax = inputPoints[0].x - inputPoints[pointsCount - 1].x;
+    deltay = inputPoints[0].y - inputPoints[pointsCount - 1].y;
+
+    cost = pow(deltax, 2) + pow(deltay, 2);
+    Cost += sqrt(cost);    
+    
+    return Cost;
+}
+
+void Path::graph()
+{
+
+}
+
+void Path::rescaleNodes()
+{
+    rescalePoints(Position* points, pointsCount);
+}
+
+void Path::visualize()
+{
+    
+}
+
 ////////////////////////////////////////////////// Class Path - End
 
 ////////////////////////////////////////////////// Class Problem - Start
