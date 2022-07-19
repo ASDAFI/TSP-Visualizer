@@ -361,15 +361,15 @@ int Path::getCost()
 
     for (int i = 1; i < pointsCount; i++)
     {
-        deltax = inputPoints[i].x - inputPoints[i-1].x;
-        deltay = inputPoints[i].y - inputPoints[i-1].y;
+        deltax = points[i].x - points[i-1].x;
+        deltay = points[i].y - points[i-1].y;
         
         cost = pow(deltax, 2) + pow(deltay, 2);
         Cost += sqrt(cost);
     }
 
-    deltax = inputPoints[0].x - inputPoints[pointsCount - 1].x;
-    deltay = inputPoints[0].y - inputPoints[pointsCount - 1].y;
+    deltax = points[0].x - points[pointsCount - 1].x;
+    deltay = points[0].y - points[pointsCount - 1].y;
 
     cost = pow(deltax, 2) + pow(deltay, 2);
     Cost += sqrt(cost);    
@@ -377,7 +377,7 @@ int Path::getCost()
     return Cost;
 }
 
-void Path::graph()
+/*void Path::graph()
 {
 
 }
@@ -390,7 +390,7 @@ void Path::rescaleNodes()
 void Path::visualize()
 {
     
-}
+}*/
 
 ////////////////////////////////////////////////// Class Path - End
 
