@@ -4,6 +4,12 @@
 
 using namespace std;
 
+
+struct Point{
+    int x;
+    int y;
+};
+
 class Screen {
     private:
         int width, height;
