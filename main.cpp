@@ -1172,7 +1172,7 @@ int main() {
     
     Algorithm algorithm = Algorithm(&p);
     algorithm.setScreen(&screen);
-    algorithm.doAntColony(10, 100, 0.2, 1, 10);
-    
+    algorithm.doAntColony(15, 100, 0.2, 1, 10);
+    //algorithm.doLocalSearch(1000, 1, 100);
     getch();
 }
