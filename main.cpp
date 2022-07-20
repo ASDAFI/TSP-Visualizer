@@ -34,6 +34,15 @@ class Screen {
             initgraph(&gd, &gm, NULL);
             // init graph (build GUI)
         }
+        void drawLine(Point point1, Point point2) {
+            // draw line
+            line(point1.x, point1.y, point2.x, point2.y);
+        }
+
+        void drawCircle(Point point, int radius) {
+            // draw circle
+            circle(point.x, point.y, radius);
+        }
 
 
 };
