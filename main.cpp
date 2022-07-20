@@ -1,7 +1,8 @@
 # include "iostream"
 # include "graphics.h"
 # include "math.h"
-
+# include "vector"
+# include "limits"
 
 using namespace std;
 
@@ -257,11 +258,158 @@ void Edge::visualize(Screen* screen){
 //
 
 
+class Graph {
+    vector<Edge*> edges;
+    vector<Node*> nodes;
+    int** adj;
+    int edgesCount;
+    int nodesCount;
+    Screen* screen;
+public:
+    Graph();
+    void setScreen(Screen* screen);
+    void addEdge(Edge* inputEdge);
+    void addNode(Node* inputNode);
+    vector<Edge*> getEdges();
+    vector<Node*> getNodes();
+    int getNodesCount();
+    int getEdgesCount();
+    Point* getPoints();
+    Point* getPositions();
+    void makeAddjacencyMatrix();
+    int** getAdjacencyMatrix();
+    void scale();
+    void visualizeNodes();
+    void visualizeEdges();
+    void visualize();
+
+};
+
+
+
+
+Graph::Graph()
+{
+    edgesCount = 0;
+    nodesCount = 0;
+}
+
+void Graph::addEdge(Edge* inputEdge)
+{
+    edges.push_back(inputEdge);
+    edgesCount ++;
+    
+}
+void Graph::addNode(Node* inputNode)
+{
+    nodes.push_back(inputNode);
+    nodesCount ++;
+ 
+}
+vector<Edge*> Graph::getEdges(){
+    return edges;
+}
+vector<Node*> Graph::getNodes(){
+    return nodes;
+}
+int Graph::getNodesCount(){
+    return nodesCount;
+}
+int Graph::getEdgesCount(){
+    return edgesCount;
+}
+Point* Graph::getPoints(){
+    Point* points = new Point[nodesCount];
+    for (int i = 0; i < nodesCount; i++)
+    {
+        points[i] = nodes[i]->getPoint();
+    }
+}
+Point* Graph::getPositions(){
+    Point* positions = new Point[nodesCount];
+    for (int i = 0; i < nodesCount; i++)
+    {
+        positions[i] = nodes[i]->getPosition();
+    }
+}
+void Graph::makeAddjacencyMatrix(){
+    adj = new int*[nodesCount];
+    for (int i = 0; i < nodesCount; i++)
+    {
+        adj[i] = new int[nodesCount];
+    }
+    for (int i = 0; i < nodesCount; i++)
+    {
+        for (int j = 0; j < nodesCount; j++)
+        {
+            adj[i][j] = numeric_limits<int>::max();;
+        }
+    }
+    for (int i = 0; i < edgesCount; i++)
+    {
+        Edge* edge = edges[i];
+        Node* firstNode = edge->getFirstNode();
+        Node* secondNode = edge->getSecondNode();
+        int firstNodeId = firstNode->getId();
+        int secondNodeId = secondNode->getId();
+        adj[firstNodeId][secondNodeId] = edge->getWeight();
+        
+    }
+}
+int** Graph::getAdjacencyMatrix(){
+    return adj;
+}
+void Graph::scale(){
+    int maxX = 0;
+    int maxY = 0;
+    for (int i = 0; i < nodesCount; i++)
+    {
+        Node* node = nodes[i];
+        Point point = node->getPosition();
+        if (point.x > maxX)
+        {
+            maxX = point.x;
+        }
+        if (point.y > maxY)
+        {
+            maxY = point.y;
+        }
+    }
+    double scaleX = (double)screen->getWidth() / maxX;
+    double scaleY = (double)screen->getWidth() / maxY;
+
+    for (int i = 0; i < nodesCount; i++)
+    {
+        Node* node = nodes[i];
+        Point point = node->getPosition();
+        point.x = point.x * scaleX;
+        point.y = point.y * scaleY;
+        node->setPosition(point);
+    }
+}
+void Graph::visualizeNodes(){
+    for (int i = 0; i < nodesCount; i++)
+    {
+        Node* node = nodes[i];
+        node->visualize(screen);
+    }
+}
+void Graph::visualizeEdges(){
+    for (int i = 0; i < edgesCount; i++)
+    {
+        Edge* edge = edges[i];
+        edge->visualize(screen);
+    }
+}
+void Graph::visualize(){
+    visualizeNodes();
+    visualizeEdges();
+}
+
+
+
 int main() {
     Screen screen(800, 600);
-    screen.initGraph();
-    screen.drawCircle(Point{300, 300}, 10);
-    screen.drawCircle(Point{170, 60}, 10);
-    screen.drawLineBetween2Circles( Point{300, 300}, Point{170, 60}, 10);
+    
     getch();
 }
