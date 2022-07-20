@@ -445,8 +445,8 @@ void Graph::scale(){
     {
         Node* node = nodes[i];
         Point point = node->getPosition();
-        point.x = point.x * scaleX;// + 30;
-        point.y = point.y * scaleY;// + 30;
+        point.x = point.x * scaleX + 30;
+        point.y = point.y * scaleY + 30;
         node->setPosition(point);
     }
 }
@@ -1168,7 +1168,7 @@ int main() {
 
     Screen screen(400, 500);
     screen.initGraph();
-    Problem p = Problem("cases/tsp_76_1");
+    Problem p = Problem("cases/tsp_5_1");
     
     Algorithm algorithm = Algorithm(&p);
     algorithm.setScreen(&screen);
