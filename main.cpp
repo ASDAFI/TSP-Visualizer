@@ -218,7 +218,7 @@ class Edge {
         Screen* screen;
     public:
         static int thickness;
-        Edge(int inputId, Node* inputNode1, Node* inputNode2, double inputWeight = 0);
+        Edge(int inputId, Node* inputNode1, Node* inputNode2, double inputWeight = 1);
         void setWeight(double inputWeight);
         int getId();
         double getWeight();
@@ -267,7 +267,6 @@ void Edge::visualize(Screen* screen){
 
 
 
-//
 
 
 class Graph {
@@ -406,7 +405,7 @@ void Graph::makeAddjacencyMatrix(){
     {
         for (int j = 0; j < nodesCount; j++)
         {
-            adj[i][j] = numeric_limits<int>::max();;
+            adj[i][j] = numeric_limits<int>::max();
         }
     }
     for (int i = 0; i < edgesCount; i++)
@@ -424,10 +423,11 @@ int** Graph::getAdjacencyMatrix(){
     return adj;
 }
 void Graph::scale(){
-    int maxX = 0;
-    int maxY = 0;
+    double maxX = 0;
+    double maxY = 0;
     for (int i = 0; i < nodesCount; i++)
     {
+        
         Node* node = nodes[i];
         Point point = node->getPosition();
         if (point.x > maxX)
@@ -441,7 +441,6 @@ void Graph::scale(){
     }
     double scaleX = (double)screen->getWidth() / maxX;
     double scaleY = (double)screen->getWidth() / maxY;
-
     for (int i = 0; i < nodesCount; i++)
     {
         Node* node = nodes[i];
@@ -477,21 +476,31 @@ void Graph::setScreen(Screen* screen){
 
 class Problem {
     Point* points;
+    Point* positions;
     int pointsCount;
     Graph* graph;
+
     public:
-    Problem(Point* points, int pointsCount);
+    Problem(Point* inputPoints, int inputPointsCount);
     Problem(string fileName);
     void setGraph();
     Graph* getGraph();
-
+    int getPointsCount();
+    Point* getPoints();
+    void scale(Screen* screen);
+    Point* getPositions();
 
 };
 
-Problem::Problem(Point* points, int pointsCount)
+Problem::Problem(Point* inputPoints, int inputPointsCount)
 {
-    points = points;
-    pointsCount = pointsCount;
+    points = inputPoints;
+    pointsCount = inputPointsCount;
+    positions = new Point[pointsCount];
+    for (int i = 0; i < pointsCount; i++)
+    {
+        positions[i] = points[i];
+    }
     
 }
 Problem::Problem(string fileName)
@@ -513,6 +522,11 @@ Problem::Problem(string fileName)
         points[i] = point;
     }
     pointsCount = pointsCount;
+    positions = new Point[pointsCount];
+    for (int i = 0; i < pointsCount; i++)
+    {
+        positions[i] = points[i];
+    }
 }
 void Problem::setGraph()
 {
@@ -531,9 +545,14 @@ void Problem::setGraph()
     {
         for (int j = i + 1; j < pointsCount; j++)
         {
-            Edge* edge = new Edge(edgeId, nodes[i], nodes[j], distance(points[i], points[j]));
+            double d = distance(points[i], points[j]);
+            Edge* edge = new Edge(edgeId, nodes[i], nodes[j], d);
             graph->addEdge(edge);
-            cout << i << " " << j << " " << pointsCount << endl;
+            edgeId ++;
+
+            Edge* edge = new Edge(edgeId, nodes[j], nodes[i], d);
+            graph->addEdge(edge);
+            edgeId ++;
         }
     }
 }
@@ -541,23 +560,304 @@ Graph* Problem::getGraph()
 {
     return graph;
 }
+int Problem::getPointsCount()
+{
+    return pointsCount;
+}
+Point* Problem::getPoints()
+{
+    return points;
+}
+void Problem::scale(Screen* screen){
+    Graph* newGraph = new Graph();
+    for (int i = 0; i < pointsCount; i++)
+    {
+        Node* node = new Node(i);
+        node->setPoint(points[i]);
+        node->setPosition(positions[i]);
+        newGraph->addNode(node);
+    }
+    newGraph->setScreen(screen);
+    newGraph->scale();
+    for (int i = 0; i < pointsCount; i++)
+    {
+        positions[i] = newGraph->getNodes()[i]->getPosition();
+    }
+}
+Point* Problem::getPositions(){
+    return positions;
+}
+
+
+
+class Path {
+    int length;
+    Point* points;
+    Point* positions;
+    
+    int* order;
+    Graph* graph;
+    
+    bool hasCosts;
+    int** costs;
+
+    
+
+    public:
+    Path(int inputLength, Point* inputPoints, Point* inputPositions);
+    void setCosts(int** inputCosts);
+    bool ifHasCosts();
+    int getLength();
+    Point* getPoints();
+    Point* getPositions();
+    void setOrder(int* inputOrder);
+    int* getOrder();
+    Point* getPointsByOrder();
+    Point* getPositionsByOrder();
+    double getCost();
+    void setGraph();
+    Graph* getGraph();
+    void visualize(Screen* screen);
+    bool isValid();
+    void setRandomOrder();
+    Path* copy();    
+
+};
+
+Path::Path(int inputLength, Point* inputPoints, Point* inputPositions)
+{
+    length = inputLength;
+    points = inputPoints;
+    positions = inputPositions;
+    order = new int[length];
+    for (int i = 0; i < length; i++)
+    {
+        order[i] = i;
+    }
+    hasCosts = false;
+    costs = NULL;
+}
+void Path::setCosts(int** inputCosts)
+{
+    costs = inputCosts;
+    hasCosts = true;
+}
+bool Path::ifHasCosts()
+{
+    return hasCosts;
+}
+int Path::getLength()
+{
+    return length;
+}
+Point* Path::getPoints()
+{
+    return points;
+}
+Point* Path::getPositions(){
+    return positions;
+}
+void Path::setOrder(int* inputOrder)
+{
+    order = inputOrder;
+}
+int* Path::getOrder(){
+    return order;
+}
+Point* Path::getPointsByOrder()
+{
+    Point* pointsByOrder = new Point[length];
+    for (int i = 0; i < length; i++)
+    {
+        pointsByOrder[i] = points[order[i]];
+    }
+    return pointsByOrder;
+}
+Point* Path::getPositionsByOrder()
+{
+    Point* positionsByOrder = new Point[length];
+    for (int i = 0; i < length; i++)
+    {
+        positionsByOrder[i] = positions[order[i]];
+    }
+    return positionsByOrder;
+}
+double Path::getCost()
+{
+    double cost = 0;
+    if(hasCosts){
+        for (int i = 0; i < length - 1; i++)
+        {
+            cost += costs[order[i]][order[i + 1]];
+            
+        }
+        cost += costs[order[length - 1]][order[0]];
+    } else {
+        for (int i = 0; i < length - 1; i++)
+        {
+            cost += distance(points[order[i]], points[order[i + 1]]);
+        }
+        cost += distance(points[order[length - 1]], points[order[0]]);
+    }
+    return cost;
+}
+void Path::setGraph(){
+    graph = new Graph();
+    Point* sortedPoints = this->getPointsByOrder();
+    Point* sortedPositions = this->getPositionsByOrder();
+
+    for (int i = 0; i < length; i++)
+    {
+        Node* node = new Node(i);
+        node->setPoint(sortedPoints[i]);
+        node->setPosition(sortedPositions[i]);
+        graph->addNode(node);
+    }
+    int edgeId = 0;
+    vector<Node*> nodes = graph->getNodes();
+    for (int i = 0; i < length - 1; i++)
+    {
+        Edge* edge = new Edge(edgeId, nodes[i], nodes[i + 1], distance(nodes[i]->getPosition(), nodes[i + 1]->getPosition()));
+        
+        graph->addEdge(edge);
+        edgeId ++;
+    }
+    Edge* edge = new Edge(edgeId, nodes[length - 1], nodes[0], distance(sortedPoints[length - 1], sortedPoints[0]));
+    graph->addEdge(edge);
+}
+Graph* Path::getGraph(){
+    return graph;
+}
+void Path::visualize(Screen* screen){
+    graph->setScreen(screen);
+    graph->visualize();
+}
+bool Path::isValid(){
+    if(length < 2){
+        return false;
+    }
+    
+    bool checked[length] = {false};
+    for(int i = 0; i < length; i++){
+        if(order[i] < 0 || order[i] >= length){
+            return false;
+        }
+        if(checked[order[i]]){
+            return false;
+        }
+        checked[order[i]] = true;
+
+        
+    }
+    return true;
+}
+void Path::setRandomOrder(){
+    for(int i = 0; i < length; i++){
+        order[i] = i;
+    }
+    for(int i = 0; i < length; i++){
+        int j = rand() % length;
+        int temp = order[i];
+        order[i] = order[j];
+        order[j] = temp;
+    }
+}
+Path* Path::copy(){
+    Path* copyPath = new Path(length, points, positions);
+    copyPath->setOrder(order);
+    copyPath->setCosts(costs);
+    copyPath->setGraph();
+    return copyPath;
+}
+
+
+class Algorithm{
+    Path* path;
+    double cost;
+    Problem* problem;
+    Screen* screen;
+    void random();
+    public:
+    Algorithm(Problem* inputProblem);
+    void setScreen(Screen* inputScreen);
+    void doRandom(int epochs, bool visualize = 0, int delay = 100);
+    void doGreedy(bool visualize = 0);
+    void doExhaustive(bool visualize = 0);
+};
+
+Algorithm::Algorithm(Problem* inputProblem) {
+    problem = inputProblem;
+    path = new Path(problem->getPointsCount(), problem->getPoints(), problem->getPositions());
+    path->setRandomOrder();
+    cout << "Hi" << endl;
+    cost = path->getCost();
+    cout << "Bi" << endl;
+
+}
+void Algorithm::setScreen(Screen* inputScreen) {
+    screen = inputScreen;
+    problem->scale(screen);
+}
+void Algorithm::random() {
+    path->setRandomOrder();
+}
+void Algorithm::doRandom(int epochs, bool visualize, int sleep) {
+    Path* bestPath = path->copy();
+    int bestCost = cost;
+    int newCost;
+    
+    for (int i = 0; i < epochs; i++)
+    {
+        this->random();
+        
+        newCost = path->getCost();
+        if(newCost < bestCost){
+            bestCost = newCost;
+            bestPath->setOrder(path->getOrder());
+
+            if(visualize){
+                screen->clear();
+                bestPath->setGraph();
+                bestPath->visualize(screen);
+                
+                delay(sleep);
+            }
+        }   
+        cout << "Minimum cost: " << cost << "\tCurrent cost: " << newCost << endl;
+    }
+    path = bestPath->copy();
+    cost = bestCost;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 int main() {
+
     Screen screen(400, 500);
     screen.initGraph();
-    Problem p = Problem("cases/tsp_51_1");
-    p.setGraph();
-    Graph* g = p.getGraph();
-    g->setScreen(&screen);
-    g->scale();
-    // iterate nodes
-    for (int i = 0; i < g->getNodesCount(); i++)
-    {
-        Node* node = g->getNodes()[i];
-        cout << node->getPosition().x << " " << node->getPosition().y << endl;
-    }
-    g->visualizeNodes();
-    screen.clear();
-    g->visualizeEdges();
+    Problem p = Problem("cases/tsp_70_1");
+    
+    Algorithm algorithm = Algorithm(&p);
+    algorithm.setScreen(&screen);
+    algorithm.doGreedy(1);
     getch();
 }
