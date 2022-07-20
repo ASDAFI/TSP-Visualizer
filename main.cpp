@@ -48,3 +48,66 @@ class Screen {
 };
 //
 
+
+// Node
+
+class Node {
+
+    private:
+        int id;
+        Point point;
+        Point position;
+
+    public:
+
+        static int radius;
+        static int thickness;
+        Node(int inputId);
+        int getId();
+        void setPoint(Point inputPoint);
+        Point getPoint();
+        void setPosition(Point inputPosition);
+        Point getPosition();
+        void visualize(Screen* screen);
+
+};
+
+
+int Node::radius = 9;
+int Node::thickness = Node::radius / 10 + 1;
+
+Node::Node(int inputId)
+{
+	id=inputId;
+}
+int Node::getId()
+{
+    return id;
+}
+void Node::setPoint(Point inputPoint)
+{
+    point = inputPoint;
+}
+Point Node::getPoint()
+{
+    return point;
+}
+void Node::setPosition(Point inputPosition)
+{
+    position = inputPosition;
+}
+Point Node::getPosition()
+{
+    return position;
+}
+void Node::visualize(Screen* screen)
+{
+    // draw node
+    screen->drawCircle(position, Node::radius);
+}
+
+
+
+
+
+// 
