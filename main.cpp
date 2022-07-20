@@ -272,7 +272,7 @@ void Edge::visualize(Screen* screen){
 class Graph {
     vector<Edge*> edges;
     vector<Node*> nodes;
-    int** adj;
+    double** adj;
     int edgesCount;
     int nodesCount;
     Screen* screen;
@@ -292,7 +292,7 @@ public:
     Point* getPoints();
     Point* getPositions();
     void makeAddjacencyMatrix();
-    int** getAdjacencyMatrix();
+    double** getAdjacencyMatrix();
     void scale();
     void visualizeNodes();
     void visualizeEdges();
@@ -396,16 +396,16 @@ Point* Graph::getPositions(){
     }
 }
 void Graph::makeAddjacencyMatrix(){
-    adj = new int*[nodesCount];
+    adj = new double*[nodesCount];
     for (int i = 0; i < nodesCount; i++)
     {
-        adj[i] = new int[nodesCount];
+        adj[i] = new double[nodesCount];
     }
     for (int i = 0; i < nodesCount; i++)
     {
         for (int j = 0; j < nodesCount; j++)
         {
-            adj[i][j] = numeric_limits<int>::max();
+            adj[i][j] = numeric_limits<double>::max();
         }
     }
     for (int i = 0; i < edgesCount; i++)
@@ -419,7 +419,7 @@ void Graph::makeAddjacencyMatrix(){
         
     }
 }
-int** Graph::getAdjacencyMatrix(){
+double** Graph::getAdjacencyMatrix(){
     return adj;
 }
 void Graph::scale(){
@@ -445,8 +445,8 @@ void Graph::scale(){
     {
         Node* node = nodes[i];
         Point point = node->getPosition();
-        point.x = point.x * scaleX + 30;
-        point.y = point.y * scaleY + 30;
+        point.x = point.x * scaleX;// + 30;
+        point.y = point.y * scaleY;// + 30;
         node->setPosition(point);
     }
 }
@@ -550,7 +550,7 @@ void Problem::setGraph()
             graph->addEdge(edge);
             edgeId ++;
 
-            Edge* edge = new Edge(edgeId, nodes[j], nodes[i], d);
+            edge = new Edge(edgeId, nodes[j], nodes[i], d);
             graph->addEdge(edge);
             edgeId ++;
         }
@@ -765,8 +765,6 @@ void Path::setRandomOrder(){
 Path* Path::copy(){
     Path* copyPath = new Path(length, points, positions);
     copyPath->setOrder(order);
-    copyPath->setCosts(costs);
-    copyPath->setGraph();
     return copyPath;
 }
 
@@ -777,12 +775,16 @@ class Algorithm{
     Problem* problem;
     Screen* screen;
     void random();
+    void localSearch();
+    void antColony(double** adj, double** phermone, int ants, float evaporation, int n);
     public:
     Algorithm(Problem* inputProblem);
     void setScreen(Screen* inputScreen);
     void doRandom(int epochs, bool visualize = 0, int delay = 100);
     void doGreedy(bool visualize = 0);
+    void doLocalSearch(int epochs, bool visualize = 0, int delay = 100);
     void doExhaustive(bool visualize = 0);
+    void doAntColony(int ants, int epochs, float evaporation = 0.1, bool visualize = 0, int delay = 100);
 };
 
 Algorithm::Algorithm(Problem* inputProblem) {
@@ -806,9 +808,113 @@ void Algorithm::doRandom(int epochs, bool visualize, int sleep) {
     int bestCost = cost;
     int newCost;
     
+    bestPath->setGraph();
+    bestPath->visualize(screen);
+    delay(sleep);
     for (int i = 0; i < epochs; i++)
     {
         this->random();
+        
+        newCost = path->getCost();
+        if(newCost < bestCost){
+            bestCost = newCost;
+            bestPath->setOrder(path->getOrder());
+
+            if(visualize){
+                screen->clear();
+                bestPath->setGraph();
+                bestPath->visualize(screen);
+                delay(sleep);
+            }
+        }   
+        cout << "Minimum cost: " << cost << "\tCurrent cost: " << newCost << endl;
+    }
+    path = bestPath->copy();
+    cost = bestCost;
+}
+void Algorithm::localSearch() {
+    double changesValue[problem->getPointsCount()][problem->getPointsCount()];
+    double chances[problem->getPointsCount()][problem->getPointsCount()];
+    double cummulative[problem->getPointsCount()][problem->getPointsCount()];
+    Path* newPath = path->copy();
+    int* newOrder = newPath->getOrder();
+    double sum = 0;
+    for (int i = 0; i < problem->getPointsCount(); i++)
+    {
+        for (int j = 0; j < problem->getPointsCount(); j++)
+        {
+            swap(newOrder[i], newOrder[j]);
+            newPath->setOrder(newOrder);
+            double c = 100 / newPath->getCost();
+            changesValue[i][j] = c;
+            swap(newOrder[i], newOrder[j]);
+            newPath->setOrder(newOrder);
+
+            sum += c;
+
+        }
+    }
+    
+    for (int i = 0; i < problem->getPointsCount(); i++)
+    {
+        for (int j = 0; j < problem->getPointsCount(); j++)
+        {
+            chances[i][j] = changesValue[i][j] / sum;
+        }
+    }
+
+    double s = 0;
+    for (int i = 0; i < problem->getPointsCount(); i++)
+    {
+        for (int j = 0; j < problem->getPointsCount(); j++)
+        {
+            cummulative[i][j] = chances[i][j] + s;
+            s = cummulative[i][j];
+            //cout << s << endl;
+        }
+    }
+ 
+    double r = ((double) rand() / (RAND_MAX));
+    int selectedI, selectedJ;
+    bool isSelected = false;
+
+    for (int i = 0; i < problem->getPointsCount(); i++)
+    {
+        for (int j = 0; j < problem->getPointsCount(); j++)
+        {
+            if (r <= cummulative[i][j])
+            {
+                selectedI = i;
+                selectedJ = j;
+                isSelected = true;
+                break;
+            }
+        }
+        if (isSelected)
+        {
+            break;
+        }
+
+    }
+    swap(newOrder[selectedI], newOrder[selectedJ]);
+    path->setOrder(newOrder);
+
+
+
+}
+void Algorithm::doLocalSearch(int epochs, bool visualize, int sleep) {
+    Path* bestPath = path->copy();
+    int bestCost = cost;
+    int newCost;
+    
+
+    bestPath->setGraph();
+    bestPath->visualize(screen);
+    delay(sleep);
+
+    for (int i = 0; i < epochs; i++)
+    {
+        this->localSearch();
         
         newCost = path->getCost();
         if(newCost < bestCost){
@@ -823,24 +929,48 @@ void Algorithm::doRandom(int epochs, bool visualize, int sleep) {
                 delay(sleep);
             }
         }   
-        cout << "Minimum cost: " << cost << "\tCurrent cost: " << newCost << endl;
+         cout << "Minimum cost: " << bestCost << "\tCurrent cost: " << newCost << endl;
+       
     }
     path = bestPath->copy();
     cost = bestCost;
+    cout << path->isValid() << endl;
 }
+void Algorithm::doGreedy(bool visualize) {
+    int* order = new int[problem->getPointsCount()];
+    int visited[problem->getPointsCount()] = {0};
+    int current = 0;
+    order[0] = 0;
+    visited[0] = 1;
+    Point* points = problem->getPoints();
+
+    for(int i = 1; i < problem->getPointsCount(); i++){
+        double minDistance = numeric_limits<int>::max();
+        int minIndex = -1;
+        for(int j = 0; j < problem->getPointsCount(); j++){
+            if(visited[j] == 0){
+                double d = distance(points[current], points[j]);
+                if(d < minDistance){
+                    minDistance = d;
+                    minIndex = j;
+                }
+            }
+        }
+        order[i] = minIndex;
+        visited[minIndex] = 1;
+        current = minIndex;
+    }
+    path->setOrder(order);
+
+    if(visualize){
+        screen->clear();
+        path->setGraph();
+        path->visualize(screen);
+    }
 
 
-
-
-
-
-
-
-
-
-
-
-
+    
+}
 
 
 
@@ -854,10 +984,11 @@ int main() {
 
     Screen screen(400, 500);
     screen.initGraph();
-    Problem p = Problem("cases/tsp_70_1");
+    Problem p = Problem("cases/tsp_51_1");
     
     Algorithm algorithm = Algorithm(&p);
     algorithm.setScreen(&screen);
-    algorithm.doGreedy(1);
+    algorithm.doLocalSearch(100, true, 100);
+    
     getch();
 }
