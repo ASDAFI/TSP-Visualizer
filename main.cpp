@@ -791,9 +791,7 @@ Algorithm::Algorithm(Problem* inputProblem) {
     problem = inputProblem;
     path = new Path(problem->getPointsCount(), problem->getPoints(), problem->getPositions());
     path->setRandomOrder();
-    cout << "Hi" << endl;
     cost = path->getCost();
-    cout << "Bi" << endl;
 
 }
 void Algorithm::setScreen(Screen* inputScreen) {
@@ -870,7 +868,6 @@ void Algorithm::localSearch() {
         {
             cummulative[i][j] = chances[i][j] + s;
             s = cummulative[i][j];
-            //cout << s << endl;
         }
     }
  
@@ -934,7 +931,6 @@ void Algorithm::doLocalSearch(int epochs, bool visualize, int sleep) {
     }
     path = bestPath->copy();
     cost = bestCost;
-    cout << path->isValid() << endl;
 }
 void Algorithm::doGreedy(bool visualize) {
     int* order = new int[problem->getPointsCount()];
@@ -959,14 +955,16 @@ void Algorithm::doGreedy(bool visualize) {
         order[i] = minIndex;
         visited[minIndex] = 1;
         current = minIndex;
+        
     }
     path->setOrder(order);
-
+    cout << path->getCost() << endl;
     if(visualize){
         screen->clear();
         path->setGraph();
         path->visualize(screen);
     }
+
 
 
     
@@ -1172,7 +1170,7 @@ int main() {
     
     Algorithm algorithm = Algorithm(&p);
     algorithm.setScreen(&screen);
-    algorithm.doAntColony(15, 100, 0.2, 1, 10);
-    //algorithm.doLocalSearch(1000, 1, 100);
+    //algorithm.doAntColony(15, 100, 0.2, 1, 10);
+    algorithm.doGreedy(1);
     getch();
 }
