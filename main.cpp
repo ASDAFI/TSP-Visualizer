@@ -975,6 +975,190 @@ void Algorithm::doGreedy(bool visualize) {
 
 
 
+int chooseByChance(vector<double> chances, int size){
+    double r = ((double) rand() / (RAND_MAX));
+    int selected = -1;
+    double s = 0;
+    for (int i = 0; i < size; i++)
+    {
+        if(r <= chances[i] + s){
+            selected = i;
+            break;
+        }
+        s += chances[i];
+    }
+    return selected;
+}
+
+vector<double> getChancesByValues(vector<double> values, int size){
+    vector<double> chances;
+    double sum = 0;
+    for (int i = 0; i < size; i++)
+    {
+        sum += values[i];
+    }
+    for (int i = 0; i < size; i++)
+    {
+        chances.push_back(values[i] / sum);
+    }
+    return chances;
+}
+
+int* chooseOrderByPhermone(double** phermone, int size){
+    int start  = 0;
+    int* path = new int[size];
+    
+    path[0] = start;
+    bool is_visited[size] = {false};
+    is_visited[start] = true;
+    
+    for(int tmp = 0; tmp < size - 1; tmp++){
+        int selected = -1;
+        double selected_meph = -1;
+        for(int i = 0; i < size ; i++){
+            if(is_visited[i])
+                continue;
+            if(selected_meph < phermone[path[tmp]][i]){
+                selected = i;
+                selected_meph = phermone[path[tmp]][i]; }
+        } 
+        path[tmp + 1] = selected;
+        is_visited[selected] = true;
+    }
+    return path;
+}
+
+void Algorithm::antColony(double** adj, double** phermone, int ants, float evaporation, int n){
+    
+    int current_node[ants] =  {0};
+
+    bool** is_visited = new bool*[ants];
+    for (int i = 0; i < ants; i++)
+    {
+        is_visited[i] = new bool[n];
+        is_visited[i][0] = true;
+        for (int j = 1; j < n; j++)
+        {
+            is_visited[i][j] = false;
+        }
+    }
+
+    
+
+    int lenght_visited[ants] = {1};
+    
+    vector<vector<int>> next_edges_for_mephrone;
+    vector<int> choices;
+    vector<double> choices_reward;
+
+    for(int tmp = 0; tmp < n; tmp++){
+        
+        
+        next_edges_for_mephrone.clear();
+        int lgg = 0;
+
+        for (int ant = 0; ant < ants; ant ++) {
+            if(lenght_visited[ant] == n){
+                
+                vector<int> next_edges;
+                next_edges.push_back(current_node[ant]);
+                next_edges.push_back(0);
+                
+                next_edges_for_mephrone.push_back(next_edges);
+                lgg ++;
+                
+                
+                current_node[ant] = 0;
+                
+                bool** is_visited = new bool*[ants];
+                
+                is_visited[ant] = new bool[n];
+                is_visited[ant][0] = true;
+                for (int j = 1; j < n; j++)
+                {
+                    is_visited[ant][j] = false;
+                }
+
+                lenght_visited[ant] = 1;
+        
+                continue;
+            }
+
+            
+            choices.clear();
+            choices_reward.clear();
+            int lg = 0;
+
+            for(int v = 0; v < n; v++){
+                if(is_visited[ant][v] || v == current_node[ant])
+                    continue;
+                choices.push_back(v);
+                choices_reward.push_back(phermone[current_node[ant]][v]);
+                lg ++;
+                
+            }
+
+            is_visited[ant][current_node[ant]] = true;
+            lenght_visited[ant] += 1;
+
+            double s = 0;
+         
+            
+            
+
+            vector<double> chances = getChancesByValues(choices_reward, lg);
+            int next_v = choices[chooseByChance(chances, lg)];
+            vector<int> next_edges;
+            next_edges.push_back(current_node[ant]);
+            next_edges.push_back(next_v);
+            next_edges_for_mephrone.push_back(next_edges);
+            lgg ++;
+
+            is_visited[ant][next_v] = true;
+            current_node[ant] = next_v;
+            lenght_visited[ant] ++;
+
+        }
+
+        for(int i =0; i<lgg; i++){
+            vector<int> edge = next_edges_for_mephrone[i];
+            phermone[edge[0]][edge[1]] = (phermone[edge[0]][edge[1]] + 1 / adj[edge[0]][edge[1]]) * (1 - evaporation);
+        }
+            
+    }
+}
+
+
+
+void Algorithm::doAntColony(int ants, int epochs, float evaporation, bool visualize, int sleep){
+    problem->setGraph();
+    Graph* g = problem->getGraph();
+    g->makeAddjacencyMatrix();
+    double** adj = g->getAdjacencyMatrix();
+    double** phermone = new double*[g->getNodesCount()];
+    for (int i = 0; i < g->getNodesCount(); i++)
+    {
+        phermone[i] = new double[g->getNodesCount()];
+        for (int j = 0; j < g->getNodesCount(); j++)
+        {
+            phermone[i][j] = 1;
+        }
+    }
+    
+    for(int epoch = 0; epoch < epochs; epoch++){
+        this->antColony(adj, phermone, ants, evaporation, problem->getPointsCount());
+        int* order = chooseOrderByPhermone(phermone, problem->getPointsCount());
+        path->setOrder(order);
+        if(visualize){
+            screen->clear();
+            path->setGraph();
+            path->visualize(screen);
+            delay(sleep);
+        }
+        cout << path->getCost() << endl;
+    }
+    
+}
 
 
 
@@ -984,11 +1168,11 @@ int main() {
 
     Screen screen(400, 500);
     screen.initGraph();
-    Problem p = Problem("cases/tsp_51_1");
+    Problem p = Problem("cases/tsp_76_1");
     
     Algorithm algorithm = Algorithm(&p);
     algorithm.setScreen(&screen);
-    algorithm.doLocalSearch(100, true, 100);
+    algorithm.doAntColony(10, 100, 0.2, 1, 10);
     
     getch();
 }
