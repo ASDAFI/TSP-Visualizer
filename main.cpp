@@ -3,8 +3,14 @@
 # include "vector"
 # include "graphics.h"
 # include "stdlib.h"
+# include "string"
+#include "math.h"
 
 using namespace std;
+
+
+int maxWidth = 400, maxHeight = 400;
+
 
 void initGraph(){
     int gd = DETECT, gm;
@@ -18,6 +24,126 @@ struct Position {
     int y;
 };
 
+
+Position* getCoordinates(int x1, int y1, int x2, int y2, int r)
+{
+    // This function find coordinates to draw better nodes.
+    int x3, y3, x4, y4;
+
+    if(x1 == x2){
+        x3=x1;
+        x4=x1;
+
+        if (y1>y2)
+        {
+            y3=y1-r;
+            y4=y2+r;
+
+        }
+        if (y2>y1)
+        {
+            y3=y1+r;
+            y4=y2-r;
+        }
+        Position* coordinates = new Position[2];
+        coordinates[0] = Position{x3, y3};
+        coordinates[1] = Position{x4, y4};
+
+        return coordinates;
+    }
+
+    float A, B, C, delta, a, b;
+
+    a = (y2 - y1) / (x2 - x1);
+    b = y1 - a * x1;
+
+
+
+
+    A = a * a + 1;
+
+    B = 2*((a*b) -(a * y1) - x1 );
+    C = ((b * b) + (y1 * y1) - (2 * b * y1) + (x1 * x1)) - (r * r);
+    delta = B * B - 4 * A * C;
+
+    int x31, x32;
+    x31 = (sqrt(delta) - B) / (2 * A);
+    x32 = (-sqrt(delta) - B) / (2 * A);
+
+
+    B = 2*((a*b) -(a * y2) - x2 );
+    C = ((b * b) + (y2 * y2) - (2 * b * y2) + (x2 * x2)) - (r * r);
+    delta = B * B - 4 * A * C;
+
+    int x41, x42;
+    x41 = (sqrt(delta) - B) / (2 * A);
+    x42 = (-sqrt(delta) - B) / (2 * A);
+
+
+
+    if (x1 > x2)
+    {
+        x3 = x32;
+        y3 = a * x32 + b;
+
+        x4 = x41;
+        y4 = a * x41 + b;
+
+    } else {
+        x3 = x31;
+        y3= a * x31 + b;
+
+        x4 = x42;
+        y4 = a * x42 + b;
+    }
+
+    Position* coordinates = new Position[2];
+    coordinates[0] = Position{x3, y3};
+    coordinates[1] = Position{x4, y4};
+
+    return coordinates;
+
+
+}
+
+void rescalePoints(Position* Nodesposition, int nodescount) {
+
+    double minX = Nodesposition[0].x, minY = Nodesposition[0].y;
+
+    for (int i = 1; i < nodescount; i++) {
+        minX = Nodesposition[i].x < minX ? Nodesposition[i].x : minX;
+        minY = Nodesposition[i].y < minY ? Nodesposition[i].y : minY;
+    }
+
+    if (minX < 0) {
+        for (int i = 0; i < nodescount; i++) {
+            Nodesposition[i].x += fabs(minX);
+        }
+    }
+
+    if (minY < 0) {
+        for (int i = 0; i < nodescount; i++) {
+            Nodesposition[i].x += fabs(minY);
+        }
+    }
+
+    double maxX = Nodesposition[0].x, maxY = Nodesposition[0].y;
+
+    for (int i = 1; i < nodescount; i++) {
+        maxX = Nodesposition[i].x > maxX ? Nodesposition[i].x : maxX;
+        maxY = Nodesposition[i].y > maxY ? Nodesposition[i].y : maxY;
+    }
+
+    double tx, ty;
+
+    tx = maxWidth / (maxX - minX);
+    ty = maxHeight / (maxY - minY);
+    for (int i = 0; i < nodescount; i++) {
+        Nodesposition[i].x *= tx;
+        Nodesposition[i].y *= ty;
+    }
+}
+
 ////////////////////////////////////////////////// Class Node - Start
 
 class Node {
@@ -26,6 +152,7 @@ class Node {
         int id;
         Position position;
     public:
+
         static int radius;
         static int thickness;
         Node(int inputId);
@@ -113,49 +240,20 @@ Node* Edge::getSecondNode()
 	return secondNode;
 }
 
+
+
 void Edge::visualize() {
+    int x1 = firstNode->getPosition().x, y1 = firstNode->getPosition().y;
+    int x2 = secondNode->getPosition().x, y2 = secondNode->getPosition().y;
+    float r = Node::radius;
 
+    Position* coordinates =  getCoordinates(x1, y1, x2, y2, r);
+    int x3 = coordinates[0].x, y3 = coordinates[0].y;
+    int x4 = coordinates[1].x, y4 = coordinates[1].y;
 
-
-    int alpha1 = firstNode->getPosition().x;
-    int beta1 = firstNode->getPosition().y;
-    int alpha2 = secondNode->getPosition().x;
-    int beta2 = secondNode->getPosition().y;
-    int r = Node::radius;
-
-    int x1, y1, x2, y2;
-
-    if(alpha1 == alpha2){
-        if(beta1 > beta2){
-            swap(beta1, beta2);
-        }
-        x1 = alpha1;
-        x2 = alpha2;
-
-        y1 = beta1 + r;
-        y2 = beta2 - r;
-    }
-    else {
-        float m = (beta2 - beta1) / (alpha2 - alpha1);
-        float b = beta1 - m * alpha1;
-
-        if (alpha2 < alpha1) {
-            swap(alpha1, alpha2);
-            swap(beta1, beta2);
-        }
-        float delta1 = pow(-2 * alpha1 + 2 * b * m - 2 * beta1 * m, 2) -
-                       4 * (m + 1) * (pow(alpha1, 2) + pow(b, 2) + pow(beta1, 2) - pow(r, 2) - 2 * beta1 * b);
-        x1 = (-(-2 * alpha1 + 2 * b * m - 2 * beta1 * m) + sqrt(delta1)) / (2 * (pow(m, 2) + 1));
-        y1 = m * x1 + b;
-
-        float delta2 = pow(-2 * alpha2 + 2 * b * m - 2 * beta2 * m, 2) -
-                       4 * (m + 1) * (pow(alpha2, 2) + pow(b, 2) + pow(beta2, 2) - pow(r, 2) - 2 * beta2 * b);
-        x2 = (-(-2 * alpha2 + 2 * b * m - 2 * beta2 * m) - sqrt(delta2)) / (2 * (pow(m, 2) + 1));
-        y2 = m * x2 + b;
-    }
     setlinestyle(SOLID_LINE, 0, Edge::thickness);
     //line(alpha1, beta1, alpha2, beta2);
-    line(x1, y1, x2, y2);
+    line(x3, y3, x4, y4);
 }
 
 ////////////////////////////////////////////////// Class Edge - End
@@ -177,6 +275,9 @@ public:
     void visualizeNodes();
     void visualizeEdges();
     void visualize();
+    Position* getPositions();
+    vector<vector<int>> getAdjacencyMatrix();
+    void rescale();
 
 };
 
@@ -218,66 +319,119 @@ void Graph::visualize() {
     visualizeEdges();
 }
 
-void Graph::makeAddjacencyMatrix(){
-    adj = new double*[nodesCount];
-    for (int i = 0; i < nodesCount; i++)
-    {
-        adj[i] = new double[nodesCount];
+Position* Graph::getPositions() {
+    Position* positions = new Position[nodesCount];
+    for(int i = 0; i < nodesCount; i++) {
+        positions[i] = nodes[i]->getPosition();
     }
-    for (int i = 0; i < nodesCount; i++)
-    {
-        for (int j = 0; j < nodesCount; j++)
-        {
-            adj[i][j] = numeric_limits<double>::max();
-        }
-    }
-    for (int i = 0; i < edgesCount; i++)
-    {
-        Edge* edge = edges[i];
-        Node* firstNode = edge->getFirstNode();
-        Node* secondNode = edge->getSecondNode();
-        int firstNodeId = firstNode->getId();
-        int secondNodeId = secondNode->getId();
-        adj[firstNodeId][secondNodeId] = edge->getWeight();
-        
+    return positions;
+}
+
+void Graph::rescale() {
+    Position* positions = getPositions();
+    rescalePoints(positions, nodesCount);
+    for(int i = 0; i < nodesCount; i++) {
+        nodes[i]->setPosition(positions[i]);
+        cout << positions[i].x << " " << positions[i].y << endl;
     }
 }
-double** Graph::getAdjacencyMatrix(){
-    return adj;
 
 ////////////////////////////////////////////////// Class Graph - End
 
-void Algorithm::doGreedy(bool visualize) {
-    int* order = new int[problem->getPointsCount()];
-    int visited[problem->getPointsCount()] = {0};
-    int current = 0;
-    order[0] = 0;
-    visited[0] = 1;
-    Point* points = problem->getPoints();
+////////////////////////////////////////////////// Class Path - Start
+class Path {
+    private:
+        int pointsCount;
+        Position* points;
+        int* path;
+    public:
+        Path(int inputPointsCount, Position* inputPoints);
+        void setPath(int* inputPath);
+        int getPointsCount();
+        Position* getPoints();
+        int* getPath();
+        int getCost();
+        void visualize();
+        bool isValid();
+};
 
-    for(int i = 1; i < problem->getPointsCount(); i++){
-        double minDistance = numeric_limits<int>::max();
-        int minIndex = -1;
-        for(int j = 0; j < problem->getPointsCount(); j++){
-            if(visited[j] == 0){
-                double d = distance(points[current], points[j]);
-                if(d < minDistance){
-                    minDistance = d;
-                    minIndex = j;
-                }
-            }
-        }
-        order[i] = minIndex;
-        visited[minIndex] = 1;
-        current = minIndex;
-    }
-    path->setOrder(order);
+int Path::getCost()
+{
+    int deltax, deltay, cost, Cost = 0;
 
-    if(visualize){
-        screen->clear();
-        path->setGraph();
-        path->visualize(screen);
+    for (int i = 1; i < pointsCount; i++)
+    {
+        deltax = points[i].x - points[i-1].x;
+        deltay = points[i].y - points[i-1].y;
+        
+        cost = pow(deltax, 2) + pow(deltay, 2);
+        Cost += sqrt(cost);
     }
+
+    deltax = points[0].x - points[pointsCount - 1].x;
+    deltay = points[0].y - points[pointsCount - 1].y;
+
+    cost = pow(deltax, 2) + pow(deltay, 2);
+    Cost += sqrt(cost);    
+    
+    return Cost;
+}
+
+/*void Path::graph()
+{
+
+}
+
+void Path::rescaleNodes()
+{
+    rescalePoints(Position* points, pointsCount);
+}
+
+void Path::visualize()
+{
+    
+}*/
+
+////////////////////////////////////////////////// Class Path - End
+
+////////////////////////////////////////////////// Class Problem - Start
+class Problem {
+    private:
+        int citiesCount;
+        Position* points;
+        Graph* graph;
+
+
+    public:
+        Problem(int inputCitiesCount, Position* inputPoints);
+        Problem(string filePath);
+        int getCitiesCount();
+        void setGraph();
+        Graph* getGraph();
+
+};
+
+////////////////////////////////////////////////// Class Problem - End
+
+////////////////////////////////////////////////// Class Algorithm - Start
+
+class Algorithm {
+    private:
+        Problem* problem;
+        Path* path;
+        int cost;
+        void localSearch();
+        void antColony();
+    public:
+        Algorithm(Problem* inputProblem);
+        void doExhaustiveSearch();
+        void doGreedy();
+        void doRandom();
+        void doLocalSearch(int epochs, bool visualize = false);
+        void doAntColony(int epochs, bool visualize = false);
+};
+
+////////////////////////////////////////////////// Class Algorithm - End
 
 
 
@@ -289,9 +443,9 @@ int main() {
     Node node2(2);
     Node node3(3);
 
-    node1.setPosition(Position{300, 300});
-    node2.setPosition(Position{200, 400});
-    node3.setPosition(Position{400, 400});
+    node1.setPosition(Position{3, 3});
+    node2.setPosition(Position{2, 4});
+    node3.setPosition(Position{4, 4});
 
 
     Graph g;
@@ -299,13 +453,15 @@ int main() {
     g.addNode(&node2);
     g.addNode(&node3);
 
-    //Edge edge1(1, &node1, &node2, 1);
+    Edge edge1(1, &node1, &node2, 1);
     Edge edge2(2, &node2, &node3, 1);
     Edge edge3(3, &node3, &node1, 1);
 
-    //g.addEdge(&edge1);
+    g.addEdge(&edge1);
     g.addEdge(&edge2);
     g.addEdge(&edge3);
+
+    g.rescale();
 
 
 
