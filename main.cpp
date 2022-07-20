@@ -3,6 +3,8 @@
 # include "math.h"
 # include "vector"
 # include "limits"
+# include "string"
+# include "fstream"
 
 using namespace std;
 
@@ -11,6 +13,11 @@ struct Point{
     double x;
     double y;
 };
+
+
+double distance(Point p1, Point p2){
+    return sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2));
+}
 
 
 // Screen
@@ -211,8 +218,9 @@ class Edge {
         Screen* screen;
     public:
         static int thickness;
-        Edge(int inputId, Node* inputNode1, Node* inputNode2, double inputWeight);
+        Edge(int inputId, Node* inputNode1, Node* inputNode2, double inputWeight = 0);
         void setWeight(double inputWeight);
+        int getId();
         double getWeight();
         Node* getFirstNode();
         Node* getSecondNode();
@@ -237,6 +245,10 @@ void Edge::setWeight(double inputWeight)
 double Edge::getWeight()
 {
 	return weight;
+}
+int Edge::getId()
+{
+    return id;
 }
 Node* Edge::getFirstNode()
 {
@@ -270,6 +282,10 @@ public:
     void setScreen(Screen* screen);
     void addEdge(Edge* inputEdge);
     void addNode(Node* inputNode);
+    void removeEdge(Edge* inputEdge);
+    void removeNode(Node* inputNode);
+    void removeEdgeById(int id);
+    void removeNodeById(int id);
     vector<Edge*> getEdges();
     vector<Node*> getNodes();
     int getNodesCount();
@@ -305,6 +321,54 @@ void Graph::addNode(Node* inputNode)
     nodes.push_back(inputNode);
     nodesCount ++;
  
+}
+void Graph::removeEdge(Edge* inputEdge)
+{
+    for (int i = 0; i < edges.size(); i++)
+    {
+        if (edges[i] == inputEdge)
+        {
+            edges.erase(edges.begin() + i);
+            edgesCount --;
+            break;
+        }
+    }
+}
+void Graph::removeNode(Node* inputNode)
+{
+    for (int i = 0; i < nodes.size(); i++)
+    {
+        if (nodes[i] == inputNode)
+        {
+            nodes.erase(nodes.begin() + i);
+            nodesCount --;
+            break;
+        }
+    }
+}
+void Graph::removeEdgeById(int id)
+{
+    for (int i = 0; i < edges.size(); i++)
+    {
+        if (edges[i]->getId() == id)
+        {
+            edges.erase(edges.begin() + i);
+            edgesCount --;
+            break;
+        }
+    }
+}
+void Graph::removeNodeById(int id)
+{
+    for (int i = 0; i < nodes.size(); i++)
+    {
+        if (nodes[i]->getId() == id)
+        {
+            nodes.erase(nodes.begin() + i);
+            nodesCount --;
+            break;
+        }
+    }
 }
 vector<Edge*> Graph::getEdges(){
     return edges;
@@ -382,8 +446,8 @@ void Graph::scale(){
     {
         Node* node = nodes[i];
         Point point = node->getPosition();
-        point.x = point.x * scaleX;
-        point.y = point.y * scaleY;
+        point.x = point.x * scaleX + 30;
+        point.y = point.y * scaleY + 30;
         node->setPosition(point);
     }
 }
@@ -405,11 +469,95 @@ void Graph::visualize(){
     visualizeNodes();
     visualizeEdges();
 }
+void Graph::setScreen(Screen* screen){
+    this->screen = screen;
+}
 
 
+
+class Problem {
+    Point* points;
+    int pointsCount;
+    Graph* graph;
+    public:
+    Problem(Point* points, int pointsCount);
+    Problem(string fileName);
+    void setGraph();
+    Graph* getGraph();
+
+
+};
+
+Problem::Problem(Point* points, int pointsCount)
+{
+    points = points;
+    pointsCount = pointsCount;
+    
+}
+Problem::Problem(string fileName)
+{
+    ifstream file;
+    file.open(fileName);
+    if (!file.is_open())
+    {
+        cout << "File not found!" << endl;
+        return;
+    }
+    file >> pointsCount;
+    points = new Point[pointsCount];
+    for (int i = 0; i < pointsCount; i++)
+    {
+        double x, y;
+        file >> x >> y;
+        Point point = Point{x, y};
+        points[i] = point;
+    }
+    pointsCount = pointsCount;
+}
+void Problem::setGraph()
+{
+    graph = new Graph();
+    for (int i = 0; i < pointsCount; i++)
+    {
+        Node* node = new Node(i);
+        node->setPoint(points[i]);
+        node->setPosition(points[i]);
+        graph->addNode(node);
+
+    }
+    int edgeId = 0;
+    vector<Node*> nodes = graph->getNodes();
+    for (int i = 0; i < pointsCount; i++)
+    {
+        for (int j = i + 1; j < pointsCount; j++)
+        {
+            Edge* edge = new Edge(edgeId, nodes[i], nodes[j], distance(points[i], points[j]));
+            graph->addEdge(edge);
+            cout << i << " " << j << " " << pointsCount << endl;
+        }
+    }
+}
+Graph* Problem::getGraph()
+{
+    return graph;
+}
 
 int main() {
-    Screen screen(800, 600);
-    
+    Screen screen(400, 500);
+    screen.initGraph();
+    Problem p = Problem("cases/tsp_51_1");
+    p.setGraph();
+    Graph* g = p.getGraph();
+    g->setScreen(&screen);
+    g->scale();
+    // iterate nodes
+    for (int i = 0; i < g->getNodesCount(); i++)
+    {
+        Node* node = g->getNodes()[i];
+        cout << node->getPosition().x << " " << node->getPosition().y << endl;
+    }
+    g->visualizeNodes();
+    screen.clear();
+    g->visualizeEdges();
     getch();
 }
