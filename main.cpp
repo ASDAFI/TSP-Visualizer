@@ -218,7 +218,68 @@ void Graph::visualize() {
     visualizeEdges();
 }
 
+void Graph::makeAddjacencyMatrix(){
+    adj = new double*[nodesCount];
+    for (int i = 0; i < nodesCount; i++)
+    {
+        adj[i] = new double[nodesCount];
+    }
+    for (int i = 0; i < nodesCount; i++)
+    {
+        for (int j = 0; j < nodesCount; j++)
+        {
+            adj[i][j] = numeric_limits<double>::max();
+        }
+    }
+    for (int i = 0; i < edgesCount; i++)
+    {
+        Edge* edge = edges[i];
+        Node* firstNode = edge->getFirstNode();
+        Node* secondNode = edge->getSecondNode();
+        int firstNodeId = firstNode->getId();
+        int secondNodeId = secondNode->getId();
+        adj[firstNodeId][secondNodeId] = edge->getWeight();
+        
+    }
+}
+double** Graph::getAdjacencyMatrix(){
+    return adj;
+
 ////////////////////////////////////////////////// Class Graph - End
+
+void Algorithm::doGreedy(bool visualize) {
+    int* order = new int[problem->getPointsCount()];
+    int visited[problem->getPointsCount()] = {0};
+    int current = 0;
+    order[0] = 0;
+    visited[0] = 1;
+    Point* points = problem->getPoints();
+
+    for(int i = 1; i < problem->getPointsCount(); i++){
+        double minDistance = numeric_limits<int>::max();
+        int minIndex = -1;
+        for(int j = 0; j < problem->getPointsCount(); j++){
+            if(visited[j] == 0){
+                double d = distance(points[current], points[j]);
+                if(d < minDistance){
+                    minDistance = d;
+                    minIndex = j;
+                }
+            }
+        }
+        order[i] = minIndex;
+        visited[minIndex] = 1;
+        current = minIndex;
+    }
+    path->setOrder(order);
+
+    if(visualize){
+        screen->clear();
+        path->setGraph();
+        path->visualize(screen);
+    }
+
+
 
 int main() {
     cout << "Hello world!" << endl;
