@@ -10,11 +10,15 @@ struct Point{
     int y;
 };
 
+
+// Screen
 class Screen {
     private:
-        int width, height;
+        int width;  // width of screen
+        int height; // height of screen
     public:
         Screen(int inputWidth, int inputHeight) {    
+            /* Setup Screen  */
             width = inputWidth;
             height = inputHeight;
         }
@@ -23,7 +27,15 @@ class Screen {
         }
         int getHeight() {
             return height;
-        }    
+        }
+
+        void initGraph() {
+            int gd = DETECT, gm;
+            initgraph(&gd, &gm, NULL);
+            // init graph (build GUI)
+        }
+
 
 };
+//
 
