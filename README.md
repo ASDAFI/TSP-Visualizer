@@ -8,7 +8,6 @@ Travelling salesman problem optimization and visualization tools.
 We Optimize TSP by using Ant colony optimization, local search and other heuristic and meta-heuristic algorithms.
 Visualizer will help you to visualize algorithms and optimization methods.
 
-not done Yet!
 
 
 ## Build
