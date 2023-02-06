@@ -9,6 +9,9 @@ We Optimize TSP by using Ant colony optimization, local search and other heurist
 Visualizer will help you to visualize algorithms and optimization methods.
 
 
+https://user-images.githubusercontent.com/87905316/216954971-be01cdf4-5cbf-4663-926c-d8eaf8d80dd4.mp4
+
+
 
 ## Build
 ### Setup Docker
