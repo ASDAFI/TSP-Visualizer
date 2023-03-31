@@ -11,7 +11,7 @@ Visualizer will help you to visualize algorithms and optimization methods.
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-&nbsp;&nbsp;
+&nbsp;&nbsp; 
 ![result](https://user-images.githubusercontent.com/87905316/216955364-b236e877-821f-49e3-a99f-1dae38bc7a82.gif)
 
 
