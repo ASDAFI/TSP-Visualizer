@@ -28,15 +28,4 @@ Build main.cpp using docker image
 make build-by-docker
 ```
 
-## Contributors
-Ali Sadafi
 
-Amir hossein Rajabi
-
-Reyhaneh Parsa
-
-Mahdi Moein
-
-Golnoosh Naser eslami
-
-Zahra Minakhani
